@@ -21,10 +21,6 @@ testD <- test[, n]
 
 folds <- createFolds(trainD$classe, k = 3, list = TRUE, returnTrain = FALSE)
 
-r <- folds$Fold3
-rf <-  train(trainD[-r,n], trainD[-r,"classe"], method="rf", preProcess=c("center", "scale"))
-confusionMatrix(predict(rf, trainD[r,n]), trainD[r,"classe"])
-
 samples <- 0
 erros <- 0
 
