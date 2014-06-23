@@ -172,7 +172,7 @@ rf &lt;-  train(trainD[-r,n], trainD[-r,&ldquo;classe&rdquo;], method=&ldquo;rf&
 confusionMatrix(predict(rf, trainD[r,n]), trainD[r,&ldquo;classe&rdquo;])</p>
 
 <p>samples &lt;- 0
-erros &lt;- 0</p>
+errors &lt;- 0</p>
 
 <p>for(r in folds) 
 {

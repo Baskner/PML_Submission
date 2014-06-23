@@ -22,7 +22,7 @@ testD <- test[, n]
 folds <- createFolds(trainD$classe, k = 3, list = TRUE, returnTrain = FALSE)
 
 samples <- 0
-erros <- 0
+errors <- 0
 
 for(r in folds) 
 {
