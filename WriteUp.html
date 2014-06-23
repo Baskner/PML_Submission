@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>Prediction Assignment Writeup</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>Prediction Assignment Writeup</h1>
+
+<p>library(caret)
+train &lt;- read.csv(url(&ldquo;<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv%22)">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&rdquo;)</a>)
+test &lt;- read.csv(url(&ldquo;<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv%22)">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&rdquo;)</a>)</p>
+
+<p>n &lt;- names(Filter(function(x)!all(is.na(x)), test))
+n &lt;- Filter(function(x)!(x ==  &ldquo;X&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;user_name&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;raw_timestamp_part_1&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;raw_timestamp_part_2&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;cvtd_timestamp&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;new_window&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;num_window&rdquo;), n)
+n &lt;- Filter(function(x)!(x ==  &ldquo;problem_id&rdquo;), n)</p>
+
+<p>train$classe &lt;- as.factor(trainD$classe)</p>
+
+<p>form &lt;- paste(&ldquo;classe ~ &rdquo;, paste(n, collapse=&ldquo;+&rdquo;))</p>
+
+<p>trainD &lt;- train[, c(&ldquo;classe&rdquo;, n)]
+testD &lt;- test[, n]</p>
+
+<p>folds &lt;- createFolds(trainD$classe, k = 3, list = TRUE, returnTrain = FALSE)</p>
+
+<p>r &lt;- folds$Fold3
+rf &lt;-  train(trainD[-r,n], trainD[-r,&ldquo;classe&rdquo;], method=&ldquo;rf&rdquo;, preProcess=c(&ldquo;center&rdquo;, &ldquo;scale&rdquo;))
+confusionMatrix(predict(rf, trainD[r,n]), trainD[r,&ldquo;classe&rdquo;])</p>
+
+<p>samples &lt;- 0
+erros &lt;- 0</p>
+
+<p>for(r in folds) 
+{
+  rf &lt;- train(trainD[-r,n], trainD[-r,&ldquo;classe&rdquo;], method=&ldquo;rf&rdquo;, preProcess=c(&ldquo;center&rdquo;, &ldquo;scale&rdquo;))
+  folds$r.confM &lt;- confusionMatrix(predict(rf, trainD[r,n]), trainD[r,&ldquo;classe&rdquo;])</p>
+
+<p>m &lt;- predict(rf, trainD[r,n]) == trainD[r,&ldquo;classe&rdquo;]
+  samples &lt;- samples + length(m)
+  errors &lt;- errors + length(m) + sum(m)
+}</p>
+
+<p>out_of_sample_error &lt;- errors / samples</p>
+
+<p>rf &lt;- train(trainD[, n], trainD[, &ldquo;classe&rdquo;], method=&ldquo;rf&rdquo;, preProcess=c(&ldquo;center&rdquo;, &ldquo;scale&rdquo;))
+confM &lt;- confusionMatrix(predict(rf, trainD[, n]), trainD[, &ldquo;classe&rdquo;])</p>
+
+<p>rf$final</p>
+
+<p>answers &lt;- predict(rf, testD)</p>
+
+<p>pml<em>write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0(&ldquo;problem_id</em>&rdquo;,i,&ldquo;.txt&rdquo;)
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}</p>
+
+<p>pml_write_files(answers)</p>
+
+</body>
+
+</html>
+
